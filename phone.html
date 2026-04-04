@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>WHODUNNIT</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    body {
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100dvh;
+      background: var(--chalk);
+    }
+
+    #phone-app {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 40px 24px 36px;
+      height: 100%;
+    }
+
+    /* LOGO */
+    .phone-logo {
+      font-size: 1.6rem;
+      font-weight: 900;
+      letter-spacing: -0.03em;
+      margin-bottom: 28px;
+      text-align: center;
+      color: var(--black);
+    }
+    .phone-logo span { color: var(--tang); }
+
+    /* JOIN */
+    .join-screen {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex: 1;
+      justify-content: center;
+    }
+    .join-screen h2 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .join-screen .subtitle {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      font-size: 0.95rem;
+    }
+    .error-msg {
+      background: rgba(113,22,17,0.08);
+      border: 1.5px solid rgba(113,22,17,0.25);
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      color: var(--brick);
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+    }
+
+    /* WAIT */
+    .wait-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      flex: 1;
+      text-align: center;
+    }
+    .wait-screen .big-emoji { font-size: 4rem; animation: pulse 2s ease-in-out infinite; }
+    .wait-screen h2 { font-size: 1.65rem; font-weight: 800; letter-spacing: -0.02em; }
+    .wait-screen p  { color: var(--text-muted); font-size: 1rem; }
+    .name-tag {
+      display: inline-block;
+      padding: 8px 22px;
+      border-radius: 50px;
+      background: rgba(241,96,34,0.1);
+      border: 1.5px solid rgba(241,96,34,0.25);
+      font-weight: 700;
+      color: var(--tang);
+      font-size: 0.95rem;
+    }
+
+    /* GUESS */
+    .guess-screen {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 20px;
+    }
+    .phone-prompt {
+      font-size: 1.25rem;
+      font-weight: 700;
+      padding: 18px 20px;
+      background: white;
+      border-radius: var(--radius-sm);
+      border-left: 4px solid var(--tang);
+      line-height: 1.4;
+      box-shadow: var(--shadow-sm);
+      letter-spacing: -0.01em;
+    }
+    .guess-label {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .guess-picker-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      justify-content: center;
+    }
+    .max-hint {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    /* VOTE */
+    .vote-screen {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 20px;
+    }
+    .vote-question {
+      font-size: 1.65rem;
+      font-weight: 800;
+      text-align: center;
+      margin: auto 0;
+      letter-spacing: -0.02em;
+    }
+    .vote-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: auto;
+    }
+
+    /* LOCKED */
+    .locked-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex: 1;
+      text-align: center;
+    }
+    .locked-screen .lock-icon { font-size: 3rem; }
+    .locked-screen h3 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--leaf);
+    }
+    .locked-screen p { color: var(--text-muted); font-size: 0.95rem; }
+  </style>
+</head>
+<body>
+  <div id="phone-app"></div>
+  <script type="module" src="./app-phone.js"></script>
+</body>
+</html>

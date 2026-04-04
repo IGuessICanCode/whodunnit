@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WHODUNNIT — TV</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+
+  <style>
+    #app {
+      width: 100vw;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      padding: 44px 60px 76px;
+    }
+
+    /* ---- LOBBY ---- */
+    .lobby-layout {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 52px;
+      height: 100%;
+      align-items: center;
+    }
+    .lobby-left h1 {
+      font-size: clamp(4rem, 7.5vw, 7.5rem);
+      font-weight: 900;
+      line-height: 0.95;
+      letter-spacing: -0.03em;
+      color: var(--black);
+      margin-bottom: 4px;
+    }
+    .lobby-left h1 span { color: var(--tang); }
+    .lobby-left .tagline {
+      color: var(--text-muted);
+      font-size: 1.25rem;
+      font-weight: 500;
+      margin-bottom: 36px;
+    }
+    .player-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 36px;
+      min-height: 56px;
+    }
+    .lobby-player {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 18px 9px 9px;
+      background: white;
+      border: 1.5px solid rgba(40,40,40,0.1);
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 1rem;
+      box-shadow: var(--shadow-sm);
+      animation: fadeUp 0.3s ease;
+    }
+    .lobby-player .av {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.8rem; font-weight: 800; color: white;
+    }
+    .empty-hint {
+      color: var(--text-muted);
+      font-style: italic;
+      font-size: 1rem;
+      align-self: center;
+    }
+    .pack-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+    .pack-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-right: 4px;
+    }
+    .pack-btn {
+      padding: 8px 20px;
+      border-radius: 50px;
+      border: 2px solid rgba(40,40,40,0.14);
+      background: white;
+      color: var(--text-muted);
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: var(--shadow-sm);
+    }
+    .pack-btn.active {
+      border-color: var(--tang);
+      background: var(--tang);
+      color: white;
+    }
+    .lobby-right {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .qr-card {
+      padding: 20px;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 8px 40px rgba(241,96,34,0.18), var(--shadow-md);
+      border: 1.5px solid rgba(40,40,40,0.07);
+    }
+    #qr-code canvas, #qr-code img { display: block; }
+    .room-code-display { text-align: center; }
+    .room-code-display .label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 2px;
+    }
+    .room-code-display .code {
+      font-size: 3.2rem;
+      font-weight: 900;
+      color: var(--tang);
+      letter-spacing: 0.18em;
+      line-height: 1;
+    }
+
+    /* ---- PROMPT ---- */
+    .prompt-screen {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 28px;
+    }
+    .prompt-chip {
+      display: inline-block;
+      padding: 6px 18px;
+      background: rgba(241,96,34,0.12);
+      border: 1.5px solid rgba(241,96,34,0.3);
+      border-radius: 50px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--tang);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .prompt-text {
+      font-size: clamp(2.4rem, 5.5vw, 4.8rem);
+      font-weight: 800;
+      max-width: 880px;
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+      color: var(--black);
+    }
+    .countdown-ring {
+      font-size: 4.5rem;
+      font-weight: 900;
+      color: var(--tang);
+      animation: pulse 1s ease-in-out infinite;
+    }
+
+    /* ---- ROUND SCREEN (GUESSING / VOTING) ---- */
+    .round-screen {
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 28px;
+    }
+    .round-prompt {
+      font-size: clamp(1.6rem, 3vw, 2.6rem);
+      font-weight: 800;
+      color: var(--black);
+      padding: 20px 28px;
+      background: white;
+      border-radius: var(--radius-sm);
+      border-left: 5px solid var(--tang);
+      box-shadow: var(--shadow-sm);
+      letter-spacing: -0.02em;
+    }
+    .section-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+    .player-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-content: flex-start;
+    }
+    .round-footer {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* ---- REVEAL ---- */
+    .reveal-screen {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      gap: 20px;
+    }
+    .reveal-prompt {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      max-width: 680px;
+      line-height: 1.5;
+    }
+    .reveal-number {
+      font-size: clamp(6rem, 14vw, 11rem);
+      font-weight: 900;
+      line-height: 1;
+      color: var(--tang);
+      animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      letter-spacing: -0.04em;
+    }
+    .reveal-label {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+    .score-deltas {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 900px;
+    }
+    .delta-chip {
+      padding: 9px 18px;
+      border-radius: 50px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      animation: fadeUp 0.4s ease both;
+    }
+    .delta-chip.got-it { background: rgba(8,136,70,0.1);   border: 1.5px solid rgba(8,136,70,0.25);   color: var(--leaf); }
+    .delta-chip.close  { background: rgba(221,144,190,0.12); border: 1.5px solid rgba(221,144,190,0.3); color: var(--brick); }
+    .delta-chip.miss   { background: rgba(40,40,40,0.05);   border: 1.5px solid rgba(40,40,40,0.1);    color: var(--text-muted); }
+
+    /* ---- SCOREBOARD ---- */
+    .scoreboard-screen {
+      height: 100%;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      gap: 20px;
+    }
+    .scoreboard-title {
+      font-size: 2.2rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .scoreboard-title .round-tag {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-left: 4px;
+    }
+    .score-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      overflow: hidden;
+    }
+    .scoreboard-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* ---- GAME OVER ---- */
+    .gameover-screen {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 28px;
+      text-align: center;
+    }
+    .gameover-title {
+      font-size: clamp(4rem, 8vw, 7rem);
+      font-weight: 900;
+      color: var(--tang);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .winner-badge {
+      background: white;
+      border-radius: var(--radius);
+      padding: 20px 40px;
+      box-shadow: var(--shadow-md);
+      border: 1.5px solid rgba(40,40,40,0.07);
+    }
+    .winner-badge .w-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+    .winner-badge .w-name {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--black);
+    }
+    .winner-badge .w-pts {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--tang);
+    }
+    .final-scores {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      max-width: 480px;
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <div id="game-footer"></div>
+  <script type="module" src="./app-tv.js"></script>
+</body>
+</html>
