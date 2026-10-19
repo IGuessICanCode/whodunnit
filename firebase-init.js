@@ -2,12 +2,12 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/fireba
 import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBQ6Gt8ce7LqlWznMLQjwNj59wJ-AJQQFc",
-  authDomain: "whodunnit-6e148.firebaseapp.com",
-  projectId: "whodunnit-6e148",
-  storageBucket: "whodunnit-6e148.firebasestorage.app",
-  messagingSenderId: "489264262384",
-  appId: "1:489264262384:web:f3b79dee30dc78789ca635"
+  apiKey: "AIzaSyDyQzcXtOxaVq69IiZMDt5QHbXacRD3AVE",
+  authDomain: "karaoke-express.firebaseapp.com",
+  projectId: "karaoke-express",
+  storageBucket: "karaoke-express.firebasestorage.app",
+  messagingSenderId: "382690273372",
+  appId: "1:382690273372:web:146bb17951c1ae54359e99"
 };
 
 export const app = initializeApp(firebaseConfig);

@@ -1,351 +1,153 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>WHODUNNIT — TV</title>
-  <link rel="stylesheet" href="styles.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-
-  <style>
-    #app {
-      width: 100vw;
-      height: 100vh;
-      display: flex;
-      flex-direction: column;
-      padding: 44px 60px 76px;
-    }
-
-    /* ---- LOBBY ---- */
-    .lobby-layout {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 52px;
-      height: 100%;
-      align-items: center;
-    }
-    .lobby-left h1 {
-      font-size: clamp(4rem, 7.5vw, 7.5rem);
-      font-weight: 900;
-      line-height: 0.95;
-      letter-spacing: -0.03em;
-      color: var(--black);
-      margin-bottom: 4px;
-    }
-    .lobby-left h1 span { color: var(--tang); }
-    .lobby-left .tagline {
-      color: var(--text-muted);
-      font-size: 1.25rem;
-      font-weight: 500;
-      margin-bottom: 36px;
-    }
-    .player-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      margin-bottom: 36px;
-      min-height: 56px;
-    }
-    .lobby-player {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 9px 18px 9px 9px;
-      background: white;
-      border: 1.5px solid rgba(40,40,40,0.1);
-      border-radius: 50px;
-      font-weight: 700;
-      font-size: 1rem;
-      box-shadow: var(--shadow-sm);
-      animation: fadeUp 0.3s ease;
-    }
-    .lobby-player .av {
-      width: 34px; height: 34px;
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 0.8rem; font-weight: 800; color: white;
-    }
-    .empty-hint {
-      color: var(--text-muted);
-      font-style: italic;
-      font-size: 1rem;
-      align-self: center;
-    }
-    .pack-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 28px;
-    }
-    .pack-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-      margin-right: 4px;
-    }
-    .pack-btn {
-      padding: 8px 20px;
-      border-radius: 50px;
-      border: 2px solid rgba(40,40,40,0.14);
-      background: white;
-      color: var(--text-muted);
-      font-family: 'Poppins', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.2s;
-      box-shadow: var(--shadow-sm);
-    }
-    .pack-btn.active {
-      border-color: var(--tang);
-      background: var(--tang);
-      color: white;
-    }
-    .lobby-right {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 20px;
-    }
-    .qr-card {
-      padding: 20px;
-      background: white;
-      border-radius: var(--radius);
-      box-shadow: 0 8px 40px rgba(241,96,34,0.18), var(--shadow-md);
-      border: 1.5px solid rgba(40,40,40,0.07);
-    }
-    #qr-code canvas, #qr-code img { display: block; }
-    .room-code-display { text-align: center; }
-    .room-code-display .label {
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      margin-bottom: 2px;
-    }
-    .room-code-display .code {
-      font-size: 3.2rem;
-      font-weight: 900;
-      color: var(--tang);
-      letter-spacing: 0.18em;
-      line-height: 1;
-    }
-
-    /* ---- PROMPT ---- */
-    .prompt-screen {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      gap: 28px;
-    }
-    .prompt-chip {
-      display: inline-block;
-      padding: 6px 18px;
-      background: rgba(241,96,34,0.12);
-      border: 1.5px solid rgba(241,96,34,0.3);
-      border-radius: 50px;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--tang);
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-    .prompt-text {
-      font-size: clamp(2.4rem, 5.5vw, 4.8rem);
-      font-weight: 800;
-      max-width: 880px;
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-      color: var(--black);
-    }
-    .countdown-ring {
-      font-size: 4.5rem;
-      font-weight: 900;
-      color: var(--tang);
-      animation: pulse 1s ease-in-out infinite;
-    }
-
-    /* ---- ROUND SCREEN (GUESSING / VOTING) ---- */
-    .round-screen {
-      height: 100%;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 28px;
-    }
-    .round-prompt {
-      font-size: clamp(1.6rem, 3vw, 2.6rem);
-      font-weight: 800;
-      color: var(--black);
-      padding: 20px 28px;
-      background: white;
-      border-radius: var(--radius-sm);
-      border-left: 5px solid var(--tang);
-      box-shadow: var(--shadow-sm);
-      letter-spacing: -0.02em;
-    }
-    .section-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.1em;
-      color: var(--text-muted);
-      margin-bottom: 12px;
-    }
-    .player-grid {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      align-content: flex-start;
-    }
-    .round-footer {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-    }
-
-    /* ---- REVEAL ---- */
-    .reveal-screen {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      gap: 20px;
-    }
-    .reveal-prompt {
-      font-size: 1.1rem;
-      color: var(--text-muted);
-      font-weight: 500;
-      max-width: 680px;
-      line-height: 1.5;
-    }
-    .reveal-number {
-      font-size: clamp(6rem, 14vw, 11rem);
-      font-weight: 900;
-      line-height: 1;
-      color: var(--tang);
-      animation: popIn 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
-      letter-spacing: -0.04em;
-    }
-    .reveal-label {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--text-muted);
-    }
-    .score-deltas {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-      justify-content: center;
-      max-width: 900px;
-    }
-    .delta-chip {
-      padding: 9px 18px;
-      border-radius: 50px;
-      font-weight: 700;
-      font-size: 0.9rem;
-      animation: fadeUp 0.4s ease both;
-    }
-    .delta-chip.got-it { background: rgba(8,136,70,0.1);   border: 1.5px solid rgba(8,136,70,0.25);   color: var(--leaf); }
-    .delta-chip.close  { background: rgba(221,144,190,0.12); border: 1.5px solid rgba(221,144,190,0.3); color: var(--brick); }
-    .delta-chip.miss   { background: rgba(40,40,40,0.05);   border: 1.5px solid rgba(40,40,40,0.1);    color: var(--text-muted); }
-
-    /* ---- SCOREBOARD ---- */
-    .scoreboard-screen {
-      height: 100%;
-      display: grid;
-      grid-template-rows: auto 1fr auto;
-      gap: 20px;
-    }
-    .scoreboard-title {
-      font-size: 2.2rem;
-      font-weight: 900;
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    .scoreboard-title .round-tag {
-      font-size: 0.85rem;
-      font-weight: 600;
-      color: var(--text-muted);
-      margin-left: 4px;
-    }
-    .score-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      overflow: hidden;
-    }
-    .scoreboard-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-    }
-
-    /* ---- GAME OVER ---- */
-    .gameover-screen {
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 28px;
-      text-align: center;
-    }
-    .gameover-title {
-      font-size: clamp(4rem, 8vw, 7rem);
-      font-weight: 900;
-      color: var(--tang);
-      letter-spacing: -0.03em;
-      line-height: 1;
-    }
-    .winner-badge {
-      background: white;
-      border-radius: var(--radius);
-      padding: 20px 40px;
-      box-shadow: var(--shadow-md);
-      border: 1.5px solid rgba(40,40,40,0.07);
-    }
-    .winner-badge .w-label {
-      font-size: 0.8rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: var(--text-muted);
-      margin-bottom: 4px;
-    }
-    .winner-badge .w-name {
-      font-size: 2rem;
-      font-weight: 900;
-      color: var(--black);
-    }
-    .winner-badge .w-pts {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: var(--tang);
-    }
-    .final-scores {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      width: 100%;
-      max-width: 480px;
-    }
-  </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#162F19" />
+  <title>Karaoke Express! — Mood Labs</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Arvo:wght@700&family=Poppins:wght@500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="app"></div>
-  <div id="game-footer"></div>
-  <script type="module" src="./app-tv.js"></script>
+<div id="stage">
+
+  <!-- 01 WELCOME -->
+  <section class="screen active" id="s-welcome">
+    <div class="hero">
+      <div class="brand"><span class="wordmark">MoOd Labs!</span><span class="presents">PRESENTS</span></div>
+      <h1 class="title">KARAOKE<br>EXPRESS!</h1>
+    </div>
+    <div class="spotlight"><img src="assets/moody-pink.png" alt="Moody" /></div>
+    <ol class="steps">
+      <li><span class="num">1</span>A word pops up</li>
+      <li><span class="num">2</span>Grab the phone first</li>
+      <li><span class="num">3</span>Sing a song with it</li>
+    </ol>
+    <div class="actions">
+      <button class="btn btn-pink" id="goSetup">Let's sing</button>
+      <div class="link-row">
+        <button class="link" data-rules>Full rules</button>
+        <a class="link" href="https://www.moodlabs.in/pages/mini-games">Check out other games</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- 02 SETUP -->
+  <section class="screen" id="s-setup">
+    <div class="block">
+      <p class="h2">Sing in…</p>
+      <div class="toggle-lang" role="radiogroup">
+        <button class="lang" data-lang="english" role="radio">English</button>
+        <button class="lang selected" data-lang="hindi" role="radio">Hindi</button>
+      </div>
+    </div>
+    <div class="block grow">
+      <div class="row-between"><p class="h2">Who's singing?</p><p class="meta" id="playerCount">0 of 10</p></div>
+      <form class="add-row" id="addForm" autocomplete="off">
+        <input id="nameInput" maxlength="14" placeholder="Add a name" enterkeyhint="done" />
+        <button class="add-btn" type="submit" aria-label="Add player"><svg viewBox="0 0 26 26"><path d="M13 5v16M5 13h16"/></svg></button>
+      </form>
+      <div class="chips" id="chips"></div>
+      <p class="hint" id="setupHint">Add at least 2 singers</p>
+      <div class="target">
+        <p class="label-lg">First to…</p>
+        <div class="target-chips">
+          <button class="tchip" data-target="50">50</button>
+          <button class="tchip selected" data-target="70">70</button>
+          <button class="tchip" data-target="100">100</button>
+        </div>
+      </div>
+    </div>
+    <div class="actions"><button class="btn btn-pink" id="startGame" disabled>Start singing</button></div>
+  </section>
+
+  <!-- 03/04 PLAY -->
+  <section class="screen" id="s-play">
+    <div class="topbar">
+      <p class="word-count" id="wordCount">WORD 1 · HINDI</p>
+      <button class="menu-btn" aria-label="Menu"><svg viewBox="0 0 20 20"><path d="M3 6h14M3 14h14"/></svg></button>
+    </div>
+    <div class="word-card" id="wordCard">
+      <img class="peek" src="assets/moody-leaf.png" alt="" />
+      <p class="kicker">SING A SONG WITH…</p>
+      <p class="word" id="word">baarish</p>
+    </div>
+    <div class="board">
+      <div class="row-between"><p class="board-title" id="boardTitle">Who sang it first?</p><p class="meta" id="boardMeta">First to 70</p></div>
+      <div class="tiles" id="tiles"></div>
+      <p class="hint" id="boardHint">Tap a name to give them +10</p>
+    </div>
+    <div class="actions">
+      <button class="btn-ghost wide" id="skip">Nobody got it · Next word</button>
+      <div class="next-row" id="nextRow" hidden>
+        <button class="btn-ghost undo" id="undo"><svg viewBox="0 0 20 20"><path d="M7 4L3 8l4 4"/><path d="M3 8h9a5 5 0 0 1 0 10H9"/></svg>Undo</button>
+        <button class="btn btn-pink" id="next">Next word</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 05 WINNER -->
+  <section class="screen" id="s-winner">
+    <div class="champion">
+      <div class="sticker-trophy">
+        <img src="assets/trophy.png" alt="" />
+        <span class="sticker-font" id="trophyText">Will never shut up about this win</span>
+      </div>
+      <p class="winner-kicker">AND THE WINNER IS</p>
+      <div class="winner-sticker" id="winnerName">Riya!</div>
+    </div>
+    <ol class="standings" id="standings"></ol>
+    <div class="actions">
+      <button class="btn btn-pink" id="playAgain">Play again</button>
+      <div class="link-row">
+        <button class="link" id="newPlayers">New players</button>
+        <a class="link" href="https://www.moodlabs.in/pages/mini-games">Check out other games</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- MENU -->
+  <div class="overlay" id="menu" hidden>
+    <div class="sheet">
+      <div class="grabber"></div>
+      <p class="sheet-title">Menu</p>
+      <button class="row" data-rules><svg viewBox="0 0 26 26"><circle cx="13" cy="13" r="10.5"/><path d="M10 10a3 3 0 1 1 4.2 2.8c-.8.4-1.2 1-1.2 1.9v.6"/><circle cx="13" cy="19" r=".6"/></svg>How to play</button>
+      <button class="row" id="soundRow"><svg viewBox="0 0 26 26"><path d="M4 10h4l6-5v16l-6-5H4z"/><path d="M18 9.5a5 5 0 0 1 0 7M21 6.5a9 9 0 0 1 0 13"/></svg>Sound<span class="switch on" id="soundSwitch"><span></span></span></button>
+      <a class="row" href="https://www.moodlabs.in/pages/mini-games"><svg viewBox="0 0 26 26"><rect x="3" y="3" width="8" height="8" rx="2"/><rect x="15" y="3" width="8" height="8" rx="2"/><rect x="3" y="15" width="8" height="8" rx="2"/><rect x="15" y="15" width="8" height="8" rx="2"/></svg>Check out other games</a>
+      <button class="row danger" id="endGame"><svg viewBox="0 0 26 26"><path d="M10 4H5v18h5M16 8l5 5-5 5M21 13H10"/></svg><span id="endLabel">End game</span></button>
+    </div>
+  </div>
+
+  <!-- RULES -->
+  <div class="overlay" id="rules" hidden>
+    <div class="sheet">
+      <div class="grabber"></div>
+      <p class="sheet-title">How to play</p>
+      <ol class="rules-list">
+        <li>Put the phone in the middle. A word pops up.</li>
+        <li>First person to <b>grab the phone and sing a song</b> with that word in it gets <b>+10</b>.</li>
+        <li>The host taps their name. Wrong name? Tap <b>Undo</b>.</li>
+        <li>Nobody can think of one? Skip to the next word.</li>
+        <li>First singer to the target score wins.</li>
+      </ol>
+      <button class="btn btn-pine" id="closeRules">Got it</button>
+    </div>
+  </div>
+
+  <div id="confetti"></div>
+</div>
+
+<script>
+  window.addEventListener("error", function (e) {
+    var d = document.createElement("div");
+    d.style.cssText = "position:fixed;left:0;right:0;bottom:0;z-index:9999;background:#711611;color:#F2E9DB;font:14px/1.4 sans-serif;padding:12px 16px";
+    d.textContent = "Something broke: " + (e.message || "unknown error") + " (" + (e.filename || "").split("/").pop() + ":" + (e.lineno || "") + ")";
+    document.body.appendChild(d);
+  });
+</script>
+<script src="words.js" defer></script>
+<script src="app.js" defer></script>
 </body>
 </html>
