@@ -6,7 +6,7 @@
   const $$ = (s) => Array.from(document.querySelectorAll(s));
   const POINTS = 10;
   const MAX_PLAYERS = 10;
-  const TROPHY_LINES = ["Will never shut up about this win", "Unnecessarily competitive", "Bragging rights: unlocked", "Certified playback singer"];
+  const TROPHY_LINES = ["Will never shut up about this win", "Unnecessarily competitive", "Bragging rights: unlocked", "Certified playback singer", "Most Enthusiastic Singer Found"];
 
   const state = {
     lang: "hindi",

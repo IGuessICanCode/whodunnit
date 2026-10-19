@@ -141,10 +141,10 @@ a.row { color: inherit; text-decoration: none; }
 .sticker-trophy img { width: 100%; height: 100%; }
 .sticker-trophy span { position: absolute; left: 40px; top: 30px; width: 70px; font-size: 10px; line-height: 12px; color: var(--ink); text-align: center; }
 @keyframes bounce { 0%, 100% { transform: rotate(-6deg) translateY(0); } 50% { transform: rotate(-3deg) translateY(-8px); } }
-.winner-kicker { font-weight: 700; font-size: 15px; letter-spacing: .16em; color: var(--pink); }
+.winner-kicker { font-weight: 700; font-size: 15px; letter-spacing: .16em; color: var(--leaf); }
 .winner-sticker {
-  padding: 10px 28px 6px; border-radius: 28px; background: var(--pink); color: var(--pine);
-  transform: rotate(-3deg); box-shadow: 6px 6px 0 var(--leaf);
+  padding: 10px 28px 6px; border-radius: 28px; background: var(--leaf); color: var(--chalk);
+  transform: rotate(-3deg); box-shadow: 6px 6px 0 var(--pink);
   font-weight: 900; font-size: 56px; line-height: 66px; letter-spacing: -0.04em; max-width: 100%; text-align: center; overflow-wrap: anywhere;
 }
 .standings { list-style: none; display: flex; flex-direction: column; gap: 6px; padding: 24px 32px 0; flex: 1; min-height: 0; overflow: hidden; }
