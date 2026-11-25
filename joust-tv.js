@@ -1,10 +1,7 @@
-import { app, db } from "./firebase-init.js";
+import { db } from "./firebase-init.js";
 import {
   doc, setDoc, updateDoc, onSnapshot, deleteDoc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-
-await signInAnonymously(getAuth(app));
 
 /* ============================================================
    ROOM SETUP
