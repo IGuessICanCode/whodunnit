@@ -12,7 +12,7 @@ function genCode() {
 }
 
 const roomCode = genCode();
-const roomRef  = doc(db, "joust_rooms", roomCode);
+const roomRef  = doc(db, "rooms", roomCode);
 const phoneURL = `${window.location.origin}/joust-phone.html?room=${roomCode}`;
 
 await setDoc(roomRef, {
