@@ -84,7 +84,7 @@ async function attemptJoin() {
   btn.textContent = "Joining…"; btn.disabled = true;
 
   try {
-    const ref  = doc(db, "rooms", code);
+    const ref  = doc(db, "sessions", code);
     const snap = await getDoc(ref);
 
     if (!snap.exists()) return renderJoin(`Room "${code}" not found. Check the TV!`);
