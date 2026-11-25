@@ -34,12 +34,24 @@ let nextNoteAt = 0;
 let bpm        = 60;
 let musicOn    = false;
 
-// G major pentatonic arpeggio — two 8-bar phrases
+// Beethoven's Ode to Joy — Symphony No. 9, 4th movement main theme
+// Each entry: [frequency_hz, beats]  (1=quarter, 2=half, 1.5=dotted quarter, 0.5=eighth)
 const MELODY = [
-  392.00, 493.88, 587.33, 783.99,  // G4 B4 D5 G5
-  587.33, 493.88, 392.00, 293.66,  // D5 B4 G4 D4
-  392.00, 493.88, 587.33, 783.99,
-  440.00, 493.88, 587.33, 523.25,  // A4 B4 D5 C5
+  // --- Phrase 1 ---
+  [329.63, 1], [329.63, 1], [349.23, 1], [392.00, 1],  // E E F G
+  [392.00, 1], [349.23, 1], [329.63, 1], [293.66, 1],  // G F E D
+  [261.63, 1], [261.63, 1], [293.66, 1], [329.63, 1],  // C C D E
+  [329.63, 1.5],[293.66, 0.5],[293.66, 2],              // E. D | D—
+  // --- Phrase 2 (repeat, different ending) ---
+  [329.63, 1], [329.63, 1], [349.23, 1], [392.00, 1],  // E E F G
+  [392.00, 1], [349.23, 1], [329.63, 1], [293.66, 1],  // G F E D
+  [261.63, 1], [261.63, 1], [293.66, 1], [329.63, 1],  // C C D E
+  [293.66, 1.5],[261.63, 0.5],[261.63, 2],              // D. C | C—
+  // --- Bridge ---
+  [293.66, 1], [293.66, 1], [329.63, 1], [261.63, 1],  // D D E C
+  [293.66, 1], [329.63, 0.5],[349.23, 0.5],[329.63, 1],[261.63, 1], // D E8 F8 E C
+  [293.66, 1], [329.63, 0.5],[349.23, 0.5],[329.63, 1],[293.66, 1], // D E8 F8 E D
+  [261.63, 1], [293.66, 1], [392.00, 2],                // C D G—
 ];
 
 function ensureAudio() {
@@ -47,32 +59,37 @@ function ensureAudio() {
   if (audioCtx.state === "suspended") audioCtx.resume();
 }
 
+// Piano-like: sine fundamental + quieter octave above, quick decay
 function playNote(freq, when, dur) {
-  const osc  = audioCtx.createOscillator();
   const gain = audioCtx.createGain();
-
-  osc.type = "triangle";
-  osc.frequency.value = freq;
-
-  gain.gain.setValueAtTime(0.12, when);
-  gain.gain.exponentialRampToValueAtTime(0.001, when + Math.min(dur * 0.9, 0.35));
-
-  osc.connect(gain);
   gain.connect(audioCtx.destination);
-  osc.start(when);
-  osc.stop(when + dur);
+
+  [[freq, 0.14], [freq * 2, 0.04]].forEach(([f, vol]) => {
+    const osc = audioCtx.createOscillator();
+    osc.type = "sine";
+    osc.frequency.value = f;
+    osc.connect(gain);
+    osc.start(when);
+    osc.stop(when + dur);
+  });
+
+  gain.gain.setValueAtTime(0, when);
+  gain.gain.linearRampToValueAtTime(0.18, when + 0.008);
+  gain.gain.exponentialRampToValueAtTime(0.001, when + Math.min(dur * 1.1, 1.2));
 }
 
 function scheduleMusic() {
   if (!musicOn) return;
   ensureAudio();
 
-  const beatLen  = 60 / bpm;
-  const lookAhead = 0.3; // seconds
+  const quarterLen = 60 / bpm;
+  const lookAhead  = 0.3;
 
   while (nextNoteAt < audioCtx.currentTime + lookAhead) {
-    playNote(MELODY[noteIndex % MELODY.length], Math.max(nextNoteAt, audioCtx.currentTime + 0.01), beatLen * 0.85);
-    nextNoteAt += beatLen;
+    const [freq, beats] = MELODY[noteIndex % MELODY.length];
+    const dur = quarterLen * beats;
+    playNote(freq, Math.max(nextNoteAt, audioCtx.currentTime + 0.01), dur * 0.88);
+    nextNoteAt += dur;
     noteIndex++;
   }
 
@@ -82,7 +99,7 @@ function scheduleMusic() {
 function startMusic() {
   ensureAudio();
   musicOn    = true;
-  bpm        = 60;
+  bpm        = 72;  // Andante — dignified classical pace
   nextNoteAt = audioCtx.currentTime + 0.1;
   noteIndex  = 0;
   scheduleMusic();
@@ -94,7 +111,7 @@ function stopMusic() {
 }
 
 function setTempo(fast) {
-  bpm = fast ? 190 : 60;
+  bpm = fast ? 200 : 72;
 }
 
 /* ============================================================
